@@ -8,7 +8,7 @@ let projects = [
   {
     id: "1",
     title: "Groceries",
-    tasks: ["Apple, Orange Juice, Milk"]
+    tasks: ["Apple", "Orange Juice", "Milk"]
   },
   {
     id: "2",
@@ -24,14 +24,14 @@ server.get('/projects', (req, res) => {
 
 // Add a new project to the projects' list
 server.post('/projects', (req, res) => {
-  const { id, title, tasks } = req.body;
+  const { id, title } = req.body;
 
-  const tasksArr = tasks.split(',').map(task => task.trim());
+  // const tasksArr = tasks.split(',').map(task => task.trim());
 
   const newProject = {
     id,
     title,
-    tasks: tasksArr
+    tasks: []
   }
 
   projects.push(newProject);
@@ -39,20 +39,42 @@ server.post('/projects', (req, res) => {
   return res.json(projects);
 });
 
-// Update a project from from the projects' list
-server.put('/projects/:id', (req, res) => {
-  const { id } = req.params;
+// Add a task to an existing project
+server.post('/projects/:id/tasks', (req, res) => {
   const { title } = req.body;
+  const { id } = req.params;
+  let updatedProject = {};
 
+  // Adding a new task to the tasks' array
   projects = projects.map(project => {
     if(project.id == id) {
-      project.title = title;
+      project.tasks.push(title);
+      updatedProject = project;
     }
     return project;
   });
 
-  return res.json(projects);
-})
+  // Returns updated project
+  return res.json(updatedProject);
+});
+
+// Update a project from from the projects' list
+server.put('/projects/:id', (req, res) => {
+  const { id } = req.params;
+  const { title } = req.body;
+  let updatedProject = {};
+
+  projects = projects.map(project => {
+    if(project.id == id) {
+      project.title = title;
+      updatedProject = project;
+    }
+    return project;
+  });
+
+  // Returns updated project
+  return res.json(updatedProject);
+});
 
 // Remove a project from the projects' list
 server.delete('/projects/:id', (req, res) => {
@@ -61,6 +83,6 @@ server.delete('/projects/:id', (req, res) => {
   projects = projects.filter(project => project.id != id);
 
   return res.json(projects);
-})
+});
 
 server.listen(3333);
