@@ -41,12 +41,6 @@ the format:  `{ id: "1", title: "New Project", tasks: [] }`;
 - `POST /projects/:id/tasks`: Route gets the `title` through the Request Body and store new tasks in the array of tasks, by selecting
 a project from the projects' list as long as a valid `id` is supplied through the Route Parameters.
 
-### Middlewares
-
-1.
-
-2. 
-
   ---
 
 Made with ♥ by Yago!
