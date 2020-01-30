@@ -17,6 +17,35 @@ let projects = [
   }
 ]
 
+// Global middleware
+let nRequests = 0;
+server.use((req, res, next) => {
+  console.time('Request Time');
+  nRequests++;
+  console.log(`Request: ${nRequests}; Method: ${req.method}; URL: ${req.url}`)
+
+  next();
+  console.timeEnd('Request Time');
+});
+
+// Local middleware
+function checkValidId(req, res, next) {
+  const { id } = req.params;
+  let isIdValid = false;
+  
+  isIdValid = projects.forEach(project => {
+    if(project.id == id) {
+      return true;
+    }
+  })
+
+  if(!isIdValid) {
+    return res.status(400).json({ error: 'Sorry...The ID you are looking for is not valid.' });
+  }
+
+  return next();
+}
+
 // Lists all projects in the projects' list
 server.get('/projects', (req, res) => {
   return res.json(projects);
@@ -40,7 +69,7 @@ server.post('/projects', (req, res) => {
 });
 
 // Add a task to an existing project
-server.post('/projects/:id/tasks', (req, res) => {
+server.post('/projects/:id/tasks', checkValidId, (req, res) => {
   const { title } = req.body;
   const { id } = req.params;
   let updatedProject = {};
@@ -59,7 +88,7 @@ server.post('/projects/:id/tasks', (req, res) => {
 });
 
 // Update a project from from the projects' list
-server.put('/projects/:id', (req, res) => {
+server.put('/projects/:id', checkValidId, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
   let updatedProject = {};
@@ -77,7 +106,7 @@ server.put('/projects/:id', (req, res) => {
 });
 
 // Remove a project from the projects' list
-server.delete('/projects/:id', (req, res) => {
+server.delete('/projects/:id', checkValidId, (req, res) => {
   const { id } = req.params;
 
   projects = projects.filter(project => project.id != id);
