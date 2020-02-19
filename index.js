@@ -31,16 +31,11 @@ server.use((req, res, next) => {
 // Local middleware
 function checkValidId(req, res, next) {
   const { id } = req.params;
-  let isIdValid = false;
-  
-  isIdValid = projects.forEach(project => {
-    if(project.id == id) {
-      return true;
-    }
-  })
 
-  if(!isIdValid) {
-    return res.status(400).json({ error: 'Sorry...The ID you are looking for is not valid.' });
+  const foundIndex = projects.findIndex(project => project.id == id);
+
+  if(!projects[foundIndex]) {
+    return res.status(400).json({ error: 'Requested ID does not exists.' });
   }
 
   return next();
@@ -72,37 +67,22 @@ server.post('/projects', (req, res) => {
 server.post('/projects/:id/tasks', checkValidId, (req, res) => {
   const { title } = req.body;
   const { id } = req.params;
-  let updatedProject = {};
 
-  // Adding a new task to the tasks' array
-  projects = projects.map(project => {
-    if(project.id == id) {
-      project.tasks.push(title);
-      updatedProject = project;
-    }
-    return project;
-  });
+  const foundIndex = projects.findIndex(project => project.id == id);
+  projects[foundIndex].tasks.push(task);
 
-  // Returns updated project
-  return res.json(updatedProject);
+  return res.json(projects);
 });
 
 // Update a project from from the projects' list
 server.put('/projects/:id', checkValidId, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
-  let updatedProject = {};
 
-  projects = projects.map(project => {
-    if(project.id == id) {
-      project.title = title;
-      updatedProject = project;
-    }
-    return project;
-  });
+  const foundIndex = projects.findIndex(project => project.id == id);
+  projects[foundIndex].title = title;
 
-  // Returns updated project
-  return res.json(updatedProject);
+  return res.json(projects);
 });
 
 // Remove a project from the projects' list
